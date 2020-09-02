@@ -56,11 +56,7 @@ class FishingBotGUIController : Initializable {
         }
 
         Thread {
-            try {
-                display()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            display()
         }.start()
     }
 
@@ -76,43 +72,47 @@ class FishingBotGUIController : Initializable {
         var currentH = currentScreen.defaultConfiguration.bounds.height.toDouble() / 2.0
         var targetBounds = Rectangle(currentX.toInt(), currentY.toInt(), currentW.toInt(), currentH.toInt())
         while (true) {
-            if (!moving) {
-                displayBounds?.let {
-                    targetBounds = it
-                    dx1 = (it.x.toDouble() - currentX) / 5.0
-                    dy1 = (it.y.toDouble() - currentY) / 5.0
-                    dx2 = ((it.x.toDouble() + it.width.toDouble()) - (currentX + currentW)) / 5.0
-                    dy2 = ((it.y.toDouble() + it.height.toDouble()) - (currentY + currentH)) / 5.0
-                    moving = true
-                    displayBounds = null
+            try {
+                if (!moving) {
+                    displayBounds?.let {
+                        targetBounds = it
+                        dx1 = (it.x.toDouble() - currentX) / 5.0
+                        dy1 = (it.y.toDouble() - currentY) / 5.0
+                        dx2 = ((it.x.toDouble() + it.width.toDouble()) - (currentX + currentW)) / 5.0
+                        dy2 = ((it.y.toDouble() + it.height.toDouble()) - (currentY + currentH)) / 5.0
+                        moving = true
+                        displayBounds = null
+                    }
                 }
-            }
 
-            if (moving && abs(currentX - targetBounds.x.toDouble()) < abs(dx1)
-                    && abs(currentY - targetBounds.y.toDouble()) < abs(dy1)
-                    && abs(currentX + currentW - targetBounds.x.toDouble() - targetBounds.width.toDouble()) < abs(dx2)
-                    && abs(currentY + currentH - targetBounds.y.toDouble() - targetBounds.height.toDouble()) < abs(dy2)
-            ) {
-                currentX = targetBounds.x.toDouble()
-                currentW = targetBounds.width.toDouble()
-                currentY = targetBounds.y.toDouble()
-                currentH = targetBounds.height.toDouble()
-                moving = false
-            } else if (moving) {
-                currentW += dx2 - dx1
-                currentX += dx1
-                currentH += dy2 - dy1
-                currentY += dy1
-            }
+                if (moving && abs(currentX - targetBounds.x.toDouble()) < abs(dx1)
+                        && abs(currentY - targetBounds.y.toDouble()) < abs(dy1)
+                        && abs(currentX + currentW - targetBounds.x.toDouble() - targetBounds.width.toDouble()) < abs(dx2)
+                        && abs(currentY + currentH - targetBounds.y.toDouble() - targetBounds.height.toDouble()) < abs(dy2)
+                ) {
+                    currentX = targetBounds.x.toDouble()
+                    currentW = targetBounds.width.toDouble()
+                    currentY = targetBounds.y.toDouble()
+                    currentH = targetBounds.height.toDouble()
+                    moving = false
+                } else if (moving) {
+                    currentW += dx2 - dx1
+                    currentX += dx1
+                    currentH += dy2 - dy1
+                    currentY += dy1
+                }
 
-            var image = captureGameImage()
-            postDisplayImageTreatment(image)
-            val finalX = maxOf(minOf(currentX.toInt(), image.width - 5), 0)
-            val finalY = maxOf(minOf(currentY.toInt(), image.height - 5), 0)
-            val finalW = maxOf(1, minOf(currentW.toInt(), image.width - finalX))
-            val finalH = maxOf(1, minOf(currentH.toInt(), image.height - finalY))
-            image = image.getSubimage(finalX, finalY, finalW, finalH)
-            Platform.runLater { floaterDisplayImageView.image = buildImageView(image) }
+                var image = captureGameImage()
+                postDisplayImageTreatment(image)
+                val finalX = maxOf(minOf(currentX.toInt(), image.width - 5), 0)
+                val finalY = maxOf(minOf(currentY.toInt(), image.height - 5), 0)
+                val finalW = maxOf(1, minOf(currentW.toInt(), image.width - finalX))
+                val finalH = maxOf(1, minOf(currentH.toInt(), image.height - finalY))
+                image = image.getSubimage(finalX, finalY, finalW, finalH)
+                Platform.runLater { floaterDisplayImageView.image = buildImageView(image) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
