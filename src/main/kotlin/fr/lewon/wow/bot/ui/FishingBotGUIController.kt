@@ -56,7 +56,11 @@ class FishingBotGUIController : Initializable {
         }
 
         Thread {
-            display()
+            try {
+                display()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }.start()
     }
 
